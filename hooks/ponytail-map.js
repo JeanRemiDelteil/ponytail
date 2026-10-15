@@ -47,7 +47,7 @@ function listFiles(root) {
       if (depth > 6 || out.length > MAX_FILES * 5) return;
       for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
         if (ent.name.startsWith('.')) continue;
-        const rel = path.relative(root, path.join(dir, ent.name)).replace(/\\/g, '/');
+        const rel = path.relative(root, path.join(dir, ent.name));
         if (ent.isDirectory()) { if (!SKIP_DIR.test(rel + '/')) walk(path.join(dir, ent.name), depth + 1); }
         else out.push(rel);
       }

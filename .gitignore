@@ -1,2 +1,4 @@
 # Claude Code local settings (machine-specific permission grants)
 .claude/settings.local.json
+.idea/
+static/

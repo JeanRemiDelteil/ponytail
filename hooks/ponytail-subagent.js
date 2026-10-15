@@ -23,7 +23,7 @@ if (!mode || mode === 'off') {
 
 function inject() {
   try {
-    writeHookOutput('SubagentStart', mode, getPonytailInstructions(mode));
+    writeHookOutput('SubagentStart', getPonytailInstructions(mode));
   } catch (e) {
     // Silent fail — a stdout error at hook exit must not surface as a hook failure.
   }
@@ -39,10 +39,7 @@ try {
   matcherRe = null;
 }
 
-// No matcher → keep the original synchronous, stdin-independent path. On Windows
-// the PowerShell `if {}` wrapper can swallow the piped JSON so stdin 'end' never
-// fires (#443); the default path must not wait on stdin or it would stall every
-// subagent spawn.
+// No matcher → nothing to read from stdin, inject right away.
 if (!matcherRe) {
   inject();
   process.exit(0);
@@ -60,8 +57,7 @@ function finish() {
 
   let agentType = '';
   try {
-    // Strip UTF-8 BOM some shells prepend when piping (breaks JSON.parse)
-    agentType = String(JSON.parse(input.replace(/^\uFEFF/, '')).agent_type || '').trim();
+    agentType = String(JSON.parse(input).agent_type || '').trim();
   } catch (e) {
     // Unparseable payload — fall through and inject to be safe.
   }
@@ -86,9 +82,6 @@ process.stdin.on('data', chunk => { input += chunk; });
 // Exit on 'end' (not just finish()) so the ref'd fallback timer below can't
 // add its full 1000ms to the normal fast path.
 process.stdin.on('end', () => { finish(); process.exit(0); });
-// Never block the session (#443): recover on stdin error or a short fallback.
-// The fallback stays ref'd: on Windows a stuck ref'd stdin keeps the loop
-// alive and an unref'd timer is never scheduled, so the hook hung to the
-// external watchdog instead of exiting at 1s (#790).
+// Never block the session: recover on stdin error or a short fallback.
 process.stdin.on('error', () => { finish(); process.exit(0); });
 setTimeout(() => { finish(); process.exit(0); }, 1000);

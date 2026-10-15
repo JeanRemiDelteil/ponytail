@@ -31,10 +31,6 @@ Level sticks until changed or session end.
 | **ponytail-gain** | `/ponytail-gain` | Measured-impact scoreboard: less code, less cost, more speed. |
 | **ponytail-help** | `/ponytail-help` | This card. |
 
-In Codex CLI and the IDE extension, invoke skills with `$ponytail:ponytail`,
-`$ponytail:ponytail-review`, or `$ponytail:ponytail-help`. Claude Code and OpenCode use the
-slash-command forms above (OpenCode ships all six as slash commands).
-
 ## Deactivate
 
 Say "stop ponytail" or "normal mode". Resume anytime with `/ponytail`.
@@ -49,7 +45,7 @@ Default mode = `full`, auto-active every session. Change it:
 export PONYTAIL_DEFAULT_MODE=ultra
 ```
 
-**Config file** (`~/.config/ponytail/config.json`, Windows: `%APPDATA%\ponytail\config.json`):
+**Config file** (`~/.config/ponytail/config.json`, or `$XDG_CONFIG_HOME/ponytail/config.json`):
 ```json
 { "defaultMode": "lite" }
 ```
@@ -59,11 +55,21 @@ with `/ponytail` when wanted.
 
 Resolution: env var > config file > `full`.
 
+## Statusline
+
+Optional badge showing the active level (`[PONYTAIL]`, `[PONYTAIL:ULTRA]`). Copy
+`hooks/ponytail-statusline.sh` from the plugin to `~/.claude/` once, then add to
+`~/.claude/settings.json`:
+```json
+"statusLine": { "type": "command", "command": "bash ~/.claude/ponytail-statusline.sh" }
+```
+Every session start refreshes that copy from the plugin.
+
 ## Update
 
 Enable auto-update once: open `/plugin`, go to Marketplaces, pick ponytail, Enable auto-update. Claude Code then pulls new versions at startup (run `/reload-plugins` when it prompts). Manual refresh: `/plugin marketplace update ponytail` then `/reload-plugins`.
 
-If `/plugin` is not recognized, your Claude Code is out of date. Update it (`npm install -g @anthropic-ai/claude-code@latest`, or `brew upgrade claude-code`) and restart. Other hosts use their own update flow.
+If `/plugin` is not recognized, your Claude Code is out of date. Update it (`npm install -g @anthropic-ai/claude-code@latest`) and restart.
 
 ## More
 
